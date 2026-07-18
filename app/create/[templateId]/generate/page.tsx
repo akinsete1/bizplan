@@ -23,6 +23,7 @@ export default function GeneratePage() {
   
   const { complete, completion, isLoading: isStreaming } = useCompletion({
     api: '/api/generate',
+    streamProtocol: 'text',
     onFinish: async (prompt, result) => {
       // Find the currently logged in user
       const { data: { user } } = await supabase.auth.getUser();
