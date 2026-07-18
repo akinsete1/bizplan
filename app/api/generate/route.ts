@@ -95,7 +95,7 @@ IMPORTANT INSTRUCTIONS:
 
     // Stream the response back using the Vercel AI SDK
     const result = await streamText({
-      model: google('gemini-1.5-pro'),
+      model: google('gemini-2.5-flash'),
       system: 'You are an expert business consultant.',
       prompt: prompt,
       temperature: 0.7,
