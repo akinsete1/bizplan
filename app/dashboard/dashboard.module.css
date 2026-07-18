@@ -1,0 +1,134 @@
+.pageTitle {
+  font-size: 1.25rem;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.topbarRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.userAvatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  color: white;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.section {
+  margin-bottom: var(--space-2xl);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-lg);
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  margin-bottom: var(--space-lg);
+}
+
+.sectionHeader .sectionTitle {
+  margin-bottom: 0;
+}
+
+/* Quick Actions */
+.quickActions {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.quickAction {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--color-border);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+  text-decoration: none;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
+}
+
+.quickAction:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.qaIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Documents */
+.docName {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-weight: 500;
+}
+
+.docActions {
+  display: flex;
+  gap: 4px;
+}
+
+/* Empty state */
+.emptyDocs {
+  text-align: center;
+  padding: var(--space-4xl);
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.emptyDocsIcon {
+  font-size: 3rem;
+}
+
+.emptyDocs h3 {
+  font-size: 1.25rem;
+  color: var(--color-text);
+}
+
+.emptyDocs p {
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+  max-width: 400px;
+}
+
+/* Sidebar Footer */
+.sidebarFooter {
+  border-top: 1px solid var(--color-border-light);
+  padding: var(--space-sm) 0;
+}

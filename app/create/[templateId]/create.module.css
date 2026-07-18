@@ -1,0 +1,431 @@
+.createPage {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+/* Sidebar */
+.sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  background: white;
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 72px;
+  height: calc(100vh - 72px);
+  overflow-y: auto;
+}
+
+.sidebarHeader {
+  padding: var(--space-xl);
+  border-bottom: 1px solid var(--color-border-light);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.templateIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.templateName {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.templateIndustry {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.stepsList {
+  flex: 1;
+  padding: var(--space-lg) 0;
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 12px var(--space-xl);
+  cursor: default;
+  transition: all var(--transition-fast);
+}
+
+.stepItem.stepDone {
+  cursor: pointer;
+}
+
+.stepItem.stepDone:hover {
+  background: var(--color-primary-50);
+}
+
+.stepCircle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: var(--color-border-light);
+  color: var(--color-text-muted);
+  border: 2px solid var(--color-border);
+  transition: all var(--transition-base);
+}
+
+.stepActive .stepCircle {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+  box-shadow: var(--shadow-primary);
+}
+
+.stepDone .stepCircle {
+  background: var(--color-primary-50);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.stepLabel {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  transition: color var(--transition-fast);
+}
+
+.stepActive .stepLabel {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.stepDone .stepLabel {
+  color: var(--color-text);
+}
+
+.sidebarSave {
+  padding: var(--space-lg) var(--space-xl);
+  border-top: 1px solid var(--color-border-light);
+}
+
+/* Form Area */
+.formArea {
+  flex: 1;
+  min-height: 100%;
+}
+
+.progressBar {
+  height: 4px;
+  background: var(--color-border-light);
+  position: sticky;
+  top: 72px;
+  z-index: 10;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
+  transition: width 0.5s ease;
+}
+
+.formWrapper {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: var(--space-2xl);
+}
+
+.stepHeader {
+  margin-bottom: var(--space-2xl);
+}
+
+.stepBadge {
+  display: inline-block;
+  background: var(--color-primary-50);
+  color: var(--color-primary);
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  margin-bottom: var(--space-sm);
+}
+
+.stepTitle {
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  color: var(--color-text);
+}
+
+.stepHint {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-xl);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-primary-50);
+  border-left: 3px solid var(--color-primary);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.questionList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+/* Breakdown */
+.breakdownSection {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.breakdownHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-lg);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.breakdownTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 2px;
+}
+
+.breakdownSubtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.breakdownRows {
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.breakdownRow {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.removeBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: #fee2e2;
+  color: var(--color-danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.removeBtn:hover {
+  background: #fecaca;
+}
+
+.breakdownTotal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-primary-50);
+  border-top: 1px solid var(--color-primary-100);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.amountInput {
+  position: relative;
+  flex: 1;
+}
+
+.nairaSign {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  pointer-events: none;
+}
+
+.amountInput .form-input {
+  padding-left: 36px;
+}
+
+/* Financial */
+.financialNote {
+  background: var(--color-accent-50);
+  border: 1px solid #fde68a;
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
+  font-size: 0.9375rem;
+  color: #92400e;
+}
+
+.financialGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-lg);
+}
+
+.financialInput {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.calcSummary {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.calcTitle {
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.calcGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.calcItem {
+  padding: var(--space-lg);
+  border-right: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.calcItem:nth-child(even) {
+  border-right: none;
+}
+
+.calcItem:nth-last-child(-n+2) {
+  border-bottom: none;
+}
+
+.calcLabel {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+
+.calcValue {
+  display: block;
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+.calcPositive .calcValue {
+  color: var(--color-success);
+}
+
+.calcNegative .calcValue {
+  color: var(--color-danger);
+}
+
+/* Final Summary */
+.finalSummary {
+  background: var(--color-primary-50);
+  border: 1px solid var(--color-primary-100);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+}
+
+.finalSummary h4 {
+  font-size: 1.0625rem;
+  color: var(--color-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.finalSummary p {
+  font-size: 0.9375rem;
+  margin-bottom: var(--space-md);
+}
+
+.summaryList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.summaryList li {
+  font-size: 0.9375rem;
+  color: var(--color-text);
+}
+
+/* Navigation */
+.formNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-2xl);
+  padding-top: var(--space-xl);
+  border-top: 1px solid var(--color-border-light);
+}
+
+.navRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    display: none;
+  }
+
+  .formWrapper {
+    padding: var(--space-lg);
+  }
+}
+
+@media (max-width: 600px) {
+  .financialGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .calcGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .breakdownRow {
+    flex-wrap: wrap;
+  }
+}

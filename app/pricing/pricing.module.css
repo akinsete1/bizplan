@@ -1,0 +1,137 @@
+.pricingHero {
+  background: linear-gradient(160deg, var(--color-primary-50) 0%, white 100%);
+  padding: var(--space-3xl) 0 var(--space-2xl);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.heroTitle {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  margin-bottom: var(--space-md);
+}
+
+.heroTitle span {
+  color: var(--color-primary);
+}
+
+.heroSubtitle {
+  font-size: 1.0625rem;
+  color: var(--color-text-muted);
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.plansGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-lg);
+  align-items: start;
+  margin-bottom: var(--space-2xl);
+}
+
+.planTop {
+  margin-bottom: var(--space-lg);
+}
+
+.planName {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.planDesc {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  margin-top: var(--space-sm);
+}
+
+/* Trust Row */
+.trustRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2xl);
+  padding: var(--space-xl);
+  background: var(--color-primary-50);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-primary-100);
+  flex-wrap: wrap;
+}
+
+.trustBadge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* FAQ */
+.faqSection {
+  background: var(--color-bg);
+  padding: var(--space-4xl) 0;
+}
+
+.faqTitle {
+  font-size: clamp(1.375rem, 2.5vw, 1.875rem);
+  color: var(--color-text);
+}
+
+.faqGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-xl);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.faqItem {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.faqQ {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: var(--space-sm);
+  font-family: var(--font-sans);
+  line-height: 1.4;
+}
+
+.faqA {
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.pricingCTA {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  padding: var(--space-4xl) 0;
+}
+
+@media (max-width: 1100px) {
+  .plansGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .faqGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .plansGrid {
+    grid-template-columns: 1fr;
+  }
+}

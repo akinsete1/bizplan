@@ -1,0 +1,137 @@
+.problemSection {
+  background: var(--color-bg);
+}
+
+.problemHeader {
+  margin-bottom: var(--space-3xl);
+}
+
+.problemsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+  margin-bottom: var(--space-3xl);
+}
+
+.problemCard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+.problemCard:hover {
+  border-color: #fecaca;
+  box-shadow: 0 4px 16px rgba(239,68,68,0.08);
+  transform: translateY(-2px);
+}
+
+.problemCardLeft {
+  flex-shrink: 0;
+}
+
+.xIcon {
+  color: var(--color-danger);
+  opacity: 0.8;
+}
+
+.problemContent {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+.problemEmoji {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.problemText {
+  font-size: 0.9375rem;
+  color: var(--color-text);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* Solution Bridge */
+.solutionBridge {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl) var(--space-3xl);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.solutionBridge::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  pointer-events: none;
+}
+
+.bridgeLeft {
+  flex-shrink: 0;
+}
+
+.bridgeArrow {
+  width: 56px;
+  height: 56px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.bridgeContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.bridgeTag {
+  display: inline-block;
+  background: var(--color-accent);
+  color: white;
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  width: fit-content;
+}
+
+.bridgeTitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  color: white;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .problemsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .solutionBridge {
+    flex-direction: column;
+    text-align: center;
+    padding: var(--space-xl) var(--space-lg);
+    gap: var(--space-lg);
+  }
+}

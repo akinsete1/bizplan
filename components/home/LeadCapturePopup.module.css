@@ -1,0 +1,122 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  animation: fadeIn 0.3s ease;
+}
+
+.popup {
+  background: white;
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 460px;
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  animation: fadeInUp 0.4s ease;
+  overflow: hidden;
+}
+
+.popup::before {
+  content: '';
+  display: block;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+}
+
+.closeBtn {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: var(--color-border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  transition: all var(--transition-fast);
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.closeBtn:hover {
+  background: var(--color-border);
+  color: var(--color-text);
+}
+
+.popupHeader {
+  padding: var(--space-xl) var(--space-xl) var(--space-md);
+  text-align: center;
+}
+
+.giftIcon {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-lg);
+  background: var(--color-accent-50);
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-md);
+}
+
+.popupTitle {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-text);
+  margin-bottom: var(--space-sm);
+}
+
+.popupDesc {
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.popupForm {
+  padding: 0 var(--space-xl) var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.disclaimer {
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--color-text-light);
+}
+
+/* Success State */
+.successState {
+  padding: var(--space-2xl);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.successIcon {
+  font-size: 3rem;
+}
+
+.successTitle {
+  font-size: 1.375rem;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.successDesc {
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
