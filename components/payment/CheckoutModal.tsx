@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { X, Check } from 'lucide-react';
 import PaystackButton from './PaystackButton';
 
@@ -24,6 +25,8 @@ export default function CheckoutModal({
   documentId,
   onSuccess,
 }: CheckoutModalProps) {
+  const [showManual, setShowManual] = useState(false);
+
   if (!isOpen) return null;
 
   return (
@@ -65,20 +68,53 @@ export default function CheckoutModal({
           </div>
         </div>
 
-        <div className="modal-footer" style={{ flexDirection: 'column', gap: '12px' }}>
-          <PaystackButton
-            amount={price}
-            metadata={{ plan: planName.toLowerCase(), type, document_id: documentId }}
-            onSuccess={(ref) => {
-              onSuccess(ref);
-              onClose();
-            }}
-            onClose={onClose}
-            text={`Pay ₦${price.toLocaleString()} Securely`}
-            className="btn btn-primary btn-lg"
-          />
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', fontSize: '0.8125rem', color: 'var(--color-text-light)' }}>
-             Secured by Paystack
+          <div className="modal-footer" style={{ flexDirection: 'column', gap: '12px' }}>
+            {!showManual ? (
+              <>
+                <PaystackButton
+                  amount={price}
+                  metadata={{ plan: planName.toLowerCase(), type, document_id: documentId }}
+                  onSuccess={(ref) => {
+                    onSuccess(ref);
+                    onClose();
+                  }}
+                  onClose={onClose}
+                  text={`Pay ₦${price.toLocaleString()} Securely`}
+                  className="btn btn-primary btn-lg"
+                />
+                <button 
+                  className="btn btn-outline btn-lg" 
+                  onClick={() => setShowManual(true)}
+                >
+                  Pay via Bank Transfer
+                </button>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', fontSize: '0.8125rem', color: 'var(--color-text-light)' }}>
+                   Secured by Paystack
+                </div>
+              </>
+            ) : (
+              <div style={{ textAlign: 'left', width: '100%' }}>
+                <h5 style={{ fontSize: '1rem', marginBottom: '8px', color: 'var(--color-text)' }}>Bank Transfer Instructions</h5>
+                <p style={{ color: 'var(--color-text-muted)', marginBottom: '16px', fontSize: '0.9375rem' }}>
+                  Please transfer <strong>₦{price.toLocaleString()}</strong> to the account below.
+                </p>
+                <div style={{ background: 'var(--color-bg)', padding: '16px', borderRadius: 'var(--radius-md)', marginBottom: '16px', fontSize: '0.9375rem' }}>
+                  <div style={{ marginBottom: '8px' }}><span style={{ color: 'var(--color-text-light)' }}>Bank:</span> <strong>Guaranty Trust Bank (GTB)</strong></div>
+                  <div style={{ marginBottom: '8px' }}><span style={{ color: 'var(--color-text-light)' }}>Account Number:</span> <strong style={{ fontSize: '1.125rem', color: 'var(--color-primary)' }}>0123456789</strong></div>
+                  <div><span style={{ color: 'var(--color-text-light)' }}>Name:</span> <strong>BizPlan Nigeria Ltd</strong></div>
+                </div>
+                <a href={`https://wa.me/2348000000000?text=Hello,%20I%20just%20paid%20%E2%82%A6${price.toLocaleString()}%20for%20the%20${planName}%20plan.`} target="_blank" rel="noreferrer" className="btn btn-primary btn-lg" style={{ width: '100%', marginBottom: '12px', background: '#25D366', borderColor: '#25D366' }}>
+                  Send Receipt on WhatsApp
+                </a>
+                <button 
+                  className="btn btn-ghost" 
+                  style={{ width: '100%' }} 
+                  onClick={() => setShowManual(false)}
+                >
+                  Back to Paystack
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

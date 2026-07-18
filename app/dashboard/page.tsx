@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FileText, Plus, LogOut, Loader2, Download, Edit } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { getUserDocuments, signOut, deleteDocument } from '@/lib/supabase';
+import { getUserDocuments, getUserSubscription, signOut, deleteDocument } from '@/lib/supabase';
 import { Document } from '@/lib/database.types';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -14,6 +14,7 @@ import styles from './dashboard.module.css';
 export default function DashboardPage() {
   const { user, session, isLoading: isAuthLoading } = useAuth();
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [subscription, setSubscription] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
@@ -24,17 +25,21 @@ export default function DashboardPage() {
   }, [user, isAuthLoading, router]);
 
   useEffect(() => {
-    async function loadDocuments() {
+    async function loadData() {
       if (user) {
-        const { data } = await getUserDocuments(user.id);
-        if (data) {
-          setDocuments(data);
-        }
+        const [{ data: docs }, { data: sub }] = await Promise.all([
+          getUserDocuments(user.id),
+          getUserSubscription(user.id)
+        ]);
+        
+        if (docs) setDocuments(docs);
+        if (sub) setSubscription(sub);
+        
         setIsLoading(false);
       }
     }
 
-    loadDocuments();
+    loadData();
   }, [user]);
 
   const handleSignOut = async () => {
@@ -92,6 +97,17 @@ export default function DashboardPage() {
               <div className="stat-card-value">{documents.length}</div>
               <div className="stat-card-label">Total Documents</div>
             </div>
+            <div className="stat-card">
+              <div className="stat-card-icon" style={{ background: 'var(--color-primary-50)', color: 'var(--color-primary)' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+              </div>
+              <div className="stat-card-value" style={{ textTransform: 'capitalize' }}>
+                {subscription?.plan || 'Free Plan'}
+              </div>
+              <div className="stat-card-label">
+                {subscription ? `Active Subscription` : <Link href="/pricing" style={{ color: 'var(--color-primary)' }}>Upgrade to Pro</Link>}
+              </div>
+            </div>
           </div>
 
           <div className="card">
@@ -139,8 +155,7 @@ export default function DashboardPage() {
                         </td>
                         <td>
                           <div style={{ display: 'flex', gap: '8px' }}>
-                             {/* The link here is currently set back to the create flow but can be adapted based on completed status */}
-                            <Link href={`/create/${doc.template_id}?docId=${doc.id}`} className="btn btn-ghost btn-sm" title="Edit">
+                            <Link href={`/dashboard/document/${doc.id}`} className="btn btn-ghost btn-sm" title="View Document">
                               <Edit size={16} />
                             </Link>
                              <button className="btn btn-ghost btn-sm" title="Download">

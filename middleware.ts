@@ -64,7 +64,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Protected routes
-  const protectedPaths = ['/dashboard', '/admin', '/create']
+  const protectedPaths = ['/dashboard', '/admin', '/create', '/tools/grant-builder', '/tools/loan-builder']
 
   // If user is not signed in and the current path is a protected path
   if (!user && protectedPaths.some((path) => request.nextUrl.pathname.startsWith(path))) {

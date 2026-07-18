@@ -9,6 +9,9 @@ import { getTemplateById } from '@/lib/templates';
 import { generateDocument, type FormData } from '@/lib/documentGenerator';
 import styles from './generate.module.css';
 
+import { useCompletion } from 'ai/react';
+import { supabase, saveDocument } from '@/lib/supabase';
+
 export default function GeneratePage() {
   const params = useParams();
   const router = useRouter();
@@ -16,18 +19,44 @@ export default function GeneratePage() {
   const template = getTemplateById(templateId);
 
   const [loading, setLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
-  const [document, setDocument] = useState('');
-  const [loadingStep, setLoadingStep] = useState(0);
+  const [saveError, setSaveError] = useState('');
+  
+  const { complete, completion, isLoading: isStreaming } = useCompletion({
+    api: '/api/generate',
+    onFinish: async (prompt, result) => {
+      // Find the currently logged in user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      const formData = localStorage.getItem(`bizplan_final_${templateId}`);
+      let parsedData: any = {};
+      if (formData) parsedData = JSON.parse(formData);
 
-  const LOADING_STEPS = [
-    'Reading your business information...',
-    'Structuring the document outline...',
-    'Writing Executive Summary...',
-    'Building Financial Projections...',
-    'Generating Market Analysis...',
-    'Finalising your professional document...',
-  ];
+      if (user) {
+        // Save to supabase real database
+        const { error } = await saveDocument({
+          user_id: user.id,
+          template_id: templateId,
+          template_title: template?.title || 'Business Plan',
+          business_name: parsedData.businessName || 'My Business',
+          status: 'completed',
+          content: result,
+          form_data: parsedData,
+          is_paid: false // default to false
+        });
+
+        if (error) {
+          console.error("Failed to save document:", error);
+          setSaveError("Document generated but failed to save to the cloud.");
+        }
+      }
+      setLoading(false);
+    },
+    onError: (err) => {
+      console.error(err);
+      alert('Error generating document: ' + err.message);
+      setLoading(false);
+    }
+  });
 
   useEffect(() => {
     const formData = localStorage.getItem(`bizplan_final_${templateId}`) ||
@@ -40,40 +69,9 @@ export default function GeneratePage() {
 
     const parsed: FormData = JSON.parse(formData);
 
-    // Simulate progressive generation
-    let step = 0;
-    const interval = setInterval(() => {
-      step++;
-      setLoadingStep(step - 1);
-      setProgress(Math.min((step / LOADING_STEPS.length) * 100, 95));
-
-      if (step >= LOADING_STEPS.length) {
-        clearInterval(interval);
-        setTimeout(() => {
-          const doc = generateDocument(parsed);
-          setDocument(doc);
-          setProgress(100);
-          setLoading(false);
-
-          // Save to documents
-          const docs = JSON.parse(localStorage.getItem('bizplan_documents') || '[]');
-          const newDoc = {
-            id: `doc_${Date.now()}`,
-            templateId,
-            templateTitle: template?.title || 'Business Plan',
-            businessName: parsed.businessName,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            status: 'completed',
-            content: doc,
-          };
-          docs.unshift(newDoc);
-          localStorage.setItem('bizplan_documents', JSON.stringify(docs));
-        }, 500);
-      }
-    }, 700);
-
-    return () => clearInterval(interval);
+    // Start AI Generation immediately
+    complete('', { body: parsed });
+    
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateId]);
 
@@ -131,35 +129,16 @@ export default function GeneratePage() {
     <>
       <Navbar />
       <div className={styles.generatePage}>
-        {loading ? (
+        {loading && !isStreaming && !completion ? (
           <div className={styles.loadingState}>
             <div className={styles.loadingCard}>
               <div className={styles.loadingIcon}>
                 <Loader2 size={40} className={styles.spinner} />
               </div>
-              <h2 className={styles.loadingTitle}>Generating Your Document</h2>
+              <h2 className={styles.loadingTitle}>Initializing AI Generator...</h2>
               <p className={styles.loadingSubtitle}>
-                Please wait while we create your professional {template?.title}
+                Please wait while we connect to the AI model.
               </p>
-
-              <div className={styles.progressBar}>
-                <div className={styles.progressFill} style={{ width: `${progress}%` }} />
-              </div>
-              <div className={styles.progressLabel}>{Math.round(progress)}% complete</div>
-
-              <div className={styles.loadingSteps}>
-                {LOADING_STEPS.map((stepText, i) => (
-                  <div
-                    key={i}
-                    className={`${styles.loadingStep} ${i < loadingStep ? styles.stepDone : ''} ${i === loadingStep ? styles.stepActive : ''}`}
-                  >
-                    <div className={styles.loadingStepIcon}>
-                      {i < loadingStep ? <CheckCircle2 size={16} color="var(--color-success)" /> : <div className={styles.stepDot} />}
-                    </div>
-                    <span>{stepText}</span>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         ) : (
@@ -189,9 +168,19 @@ export default function GeneratePage() {
             </div>
 
             <div className={styles.documentContainer}>
+              {saveError && (
+                <div style={{ background: 'var(--color-danger)', color: 'white', padding: '12px', borderRadius: '8px', marginBottom: '16px' }}>
+                  {saveError}
+                </div>
+              )}
+              {isStreaming && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: 'var(--color-primary)' }}>
+                  <Loader2 size={16} className={styles.spinner} /> AI is currently writing your document...
+                </div>
+              )}
               {/* Document Preview */}
               <div className={styles.documentPaper}>
-                <pre className={styles.documentContent}>{document}</pre>
+                <pre className={styles.documentContent}>{completion}</pre>
               </div>
             </div>
           </div>

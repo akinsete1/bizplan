@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { AlertTriangle, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
+import { supabase, saveDocument } from '@/lib/supabase';
+import { generateDocument, type FormData as DocFormData } from '@/lib/documentGenerator';
 import styles from './grant-builder.module.css';
 
 const GRANT_TYPES = [
@@ -29,6 +31,8 @@ export default function GrantBuilderPage() {
   const [selectedType, setSelectedType] = useState('');
   const [step, setStep] = useState<'select' | 'form' | 'generating' | 'done'>('select');
   const [genProgress, setGenProgress] = useState(0);
+  const [userId, setUserId] = useState<string | null>(null);
+  
   const [form, setForm] = useState({
     orgName: '', contactName: '', email: '', phone: '', state: '',
     projectTitle: '', problemDescription: '', solutionDescription: '',
@@ -36,18 +40,95 @@ export default function GrantBuilderPage() {
     expectedOutcomes: '', sustainability: '',
   });
 
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUserId(user.id);
+    });
+  }, []);
+
   const set = (f: string, v: string) => setForm(p => ({ ...p, [f]: v }));
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
+    if (!userId) {
+      alert("Please sign in to generate and save your document.");
+      router.push('/login?next=/tools/grant-builder');
+      return;
+    }
+
     setStep('generating');
+    
+    // Simulate generation progress
     let p = 0;
     const iv = setInterval(() => {
       p += 15;
-      setGenProgress(Math.min(p, 95));
-      if (p >= 95) {
-        clearInterval(iv);
-        setTimeout(() => { setGenProgress(100); setStep('done'); }, 400);
-      }
+      setGenProgress(Math.min(p, 90));
+    }, 500);
+
+    const templateLabel = GRANT_TYPES.find(t => t.id === selectedType)?.label || 'Grant Proposal';
+
+    // Map form to document generator format
+    const mappedData: DocFormData = {
+      fullName: form.contactName,
+      email: form.email,
+      phone: form.phone,
+      location: '',
+      state: form.state,
+      ownerType: 'Organization',
+      businessName: form.orgName,
+      businessType: 'NGO/Grant Applicant',
+      industry: 'Grants & NGOs',
+      businessLocation: form.state,
+      yearEstablished: '',
+      employees: '',
+      businessDescription: form.projectTitle + ': ' + form.solutionDescription,
+      problemSolved: form.problemDescription,
+      targetCustomers: form.beneficiaries,
+      productsServices: form.objectives,
+      uniqueValue: form.sustainability,
+      amountNeeded: form.totalBudget,
+      fundingPurpose: form.projectTitle,
+      fundingType: 'Grant',
+      fundingBreakdown: [],
+      monthlyRevenue: '',
+      monthlyExpenses: '',
+      costOfGoods: '',
+      staffSalaries: '',
+      rent: '',
+      marketingBudget: '',
+      otherExpenses: '',
+      goals12Months: form.timeline,
+      goals3Years: '',
+      jobsCreated: '',
+      fundingImpact: form.expectedOutcomes,
+      templateId: 'grant',
+      templateTitle: templateLabel,
+    };
+
+    const generatedMarkdown = generateDocument(mappedData);
+
+    const { data: doc, error } = await saveDocument({
+      user_id: userId,
+      template_id: 'grant',
+      template_title: templateLabel,
+      business_name: form.orgName,
+      status: 'completed',
+      content: generatedMarkdown,
+      form_data: form,
+      is_paid: false,
+    });
+
+    clearInterval(iv);
+    setGenProgress(100);
+
+    if (error || !doc) {
+      alert('Error saving document: ' + (error?.message || 'Unknown error'));
+      setStep('form');
+      return;
+    }
+
+    // Give it a tiny delay so the 100% is visible
+    setTimeout(() => {
+      router.push(`/dashboard/document/${doc.id}`);
     }, 500);
   };
 

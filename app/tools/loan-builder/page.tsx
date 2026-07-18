@@ -1,9 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
+import { supabase, saveDocument } from '@/lib/supabase';
+import { generateDocument, type FormData as DocFormData } from '@/lib/documentGenerator';
 import styles from '../grant-builder/grant-builder.module.css';
 import loanStyles from './loan-builder.module.css';
 
@@ -23,9 +26,12 @@ const LOAN_SECTIONS = [
 ];
 
 export default function LoanBuilderPage() {
+  const router = useRouter();
   const [selectedPurpose, setSelectedPurpose] = useState('');
   const [step, setStep] = useState<'select' | 'form' | 'generating' | 'done'>('select');
   const [genProgress, setGenProgress] = useState(0);
+  const [userId, setUserId] = useState<string | null>(null);
+
   const [form, setForm] = useState({
     businessName: '', ownerName: '', email: '', phone: '', state: '',
     businessType: '', industry: '', yearsInOperation: '',
@@ -34,18 +40,102 @@ export default function LoanBuilderPage() {
     collateral: '', collateralValue: '', bankName: '',
   });
 
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUserId(user.id);
+    });
+  }, []);
+
   const set = (f: string, v: string) => setForm(p => ({ ...p, [f]: v }));
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
+    if (!userId) {
+      alert("Please sign in to generate and save your document.");
+      router.push('/login?next=/tools/loan-builder');
+      return;
+    }
+
     setStep('generating');
     let p = 0;
     const iv = setInterval(() => {
       p += 12;
-      setGenProgress(Math.min(p, 95));
-      if (p >= 95) {
-        clearInterval(iv);
-        setTimeout(() => { setGenProgress(100); setStep('done'); }, 400);
-      }
+      setGenProgress(Math.min(p, 90));
+    }, 500);
+
+    const templateLabel = LOAN_PURPOSES.find(t => t.id === selectedPurpose)?.label || 'Bank Loan Proposal';
+
+    // Map form to document generator format
+    const mappedData: DocFormData = {
+      fullName: form.ownerName,
+      email: form.email,
+      phone: form.phone,
+      location: '',
+      state: form.state,
+      ownerType: 'Business Owner',
+      businessName: form.businessName,
+      businessType: form.businessType || 'SME',
+      industry: form.industry || 'Commerce',
+      businessLocation: form.state,
+      yearEstablished: form.yearsInOperation ? String(new Date().getFullYear() - parseInt(form.yearsInOperation)) : '',
+      employees: '',
+      businessDescription: 'A growing business seeking funding for ' + form.loanPurpose,
+      problemSolved: '',
+      targetCustomers: '',
+      productsServices: '',
+      uniqueValue: '',
+      amountNeeded: form.loanAmount,
+      fundingPurpose: form.loanPurpose,
+      fundingType: 'Bank Loan',
+      fundingBreakdown: [],
+      monthlyRevenue: form.monthlyRevenue,
+      monthlyExpenses: form.monthlyExpenses,
+      costOfGoods: '',
+      staffSalaries: '',
+      rent: '',
+      marketingBudget: '',
+      otherExpenses: '',
+      goals12Months: 'Repay loan over ' + form.repaymentPeriod,
+      goals3Years: '',
+      jobsCreated: '',
+      fundingImpact: 'Successfully execute ' + templateLabel,
+      templateId: 'loan',
+      templateTitle: templateLabel,
+    };
+
+    const generatedMarkdown = generateDocument(mappedData);
+
+    // Append extra sections specific to loan like Collateral and Existing Loans
+    const finalContent = generatedMarkdown + `
+## SECTION 18: ADDITIONAL LOAN DETAILS
+**Repayment Period:** ${form.repaymentPeriod}
+**Collateral Offered:** ${form.collateral}
+**Estimated Collateral Value:** ₦${form.collateralValue || '0'}
+**Existing Financial Obligations:** ${form.existingLoans}
+**Target Bank:** ${form.bankName}
+`;
+
+    const { data: doc, error } = await saveDocument({
+      user_id: userId,
+      template_id: 'loan',
+      template_title: templateLabel,
+      business_name: form.businessName,
+      status: 'completed',
+      content: finalContent,
+      form_data: form,
+      is_paid: false,
+    });
+
+    clearInterval(iv);
+    setGenProgress(100);
+
+    if (error || !doc) {
+      alert('Error saving document: ' + (error?.message || 'Unknown error'));
+      setStep('form');
+      return;
+    }
+
+    setTimeout(() => {
+      router.push(`/dashboard/document/${doc.id}`);
     }, 500);
   };
 
