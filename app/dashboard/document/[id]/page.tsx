@@ -55,7 +55,7 @@ export default function DocumentViewPage({ params }: { params: { id: string } })
       setDoc(data);
 
       // Check if user needs to pay
-      if (!data.is_paid) {
+      if (!(data as any).is_paid) {
         // Check for active subscription
         const { data: sub } = await getUserSubscription(user.id);
         if (!sub) {

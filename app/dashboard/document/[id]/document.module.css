@@ -110,7 +110,7 @@
   .pageBackground {
     background: white;
   }
-  .headerRow, nav, footer {
+  .headerRow {
     display: none !important;
   }
   .paper {

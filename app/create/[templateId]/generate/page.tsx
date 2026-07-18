@@ -9,7 +9,7 @@ import { getTemplateById } from '@/lib/templates';
 import { generateDocument, type FormData } from '@/lib/documentGenerator';
 import styles from './generate.module.css';
 
-import { useCompletion } from 'ai/react';
+import { useCompletion } from '@ai-sdk/react';
 import { supabase, saveDocument } from '@/lib/supabase';
 
 export default function GeneratePage() {
@@ -78,7 +78,7 @@ export default function GeneratePage() {
   const handleDownloadPDF = () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
-    const htmlContent = convertMarkdownToHTML(document);
+    const htmlContent = convertMarkdownToHTML(completion || '');
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>

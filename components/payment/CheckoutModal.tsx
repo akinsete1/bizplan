@@ -116,7 +116,6 @@ export default function CheckoutModal({
               </div>
             )}
           </div>
-        </div>
       </div>
     </div>
   );
