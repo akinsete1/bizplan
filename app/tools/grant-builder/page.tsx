@@ -6,7 +6,6 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { AlertTriangle, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
 import { supabase, saveDocument } from '@/lib/supabase';
-import { generateDocument, type FormData as DocFormData } from '@/lib/documentGenerator';
 import styles from './grant-builder.module.css';
 
 const GRANT_TYPES = [
@@ -56,80 +55,84 @@ export default function GrantBuilderPage() {
     }
 
     setStep('generating');
-    
-    // Simulate generation progress
-    let p = 0;
-    const iv = setInterval(() => {
-      p += 15;
-      setGenProgress(Math.min(p, 90));
-    }, 500);
+    setGenProgress(10);
 
     const templateLabel = GRANT_TYPES.find(t => t.id === selectedType)?.label || 'Grant Proposal';
 
-    // Map form to document generator format
-    const mappedData: DocFormData = {
-      fullName: form.contactName,
-      email: form.email,
-      phone: form.phone,
-      location: '',
-      state: form.state,
-      ownerType: 'Organization',
-      businessName: form.orgName,
-      businessType: 'NGO/Grant Applicant',
-      industry: 'Grants & NGOs',
-      businessLocation: form.state,
-      yearEstablished: '',
-      employees: '',
-      businessDescription: form.projectTitle + ': ' + form.solutionDescription,
-      problemSolved: form.problemDescription,
-      targetCustomers: form.beneficiaries,
-      productsServices: form.objectives,
-      uniqueValue: form.sustainability,
-      amountNeeded: form.totalBudget,
-      fundingPurpose: form.projectTitle,
-      fundingType: 'Grant',
-      fundingBreakdown: [],
-      monthlyRevenue: '',
-      monthlyExpenses: '',
-      costOfGoods: '',
-      staffSalaries: '',
-      rent: '',
-      marketingBudget: '',
-      otherExpenses: '',
-      goals12Months: form.timeline,
-      goals3Years: '',
-      jobsCreated: '',
-      fundingImpact: form.expectedOutcomes,
-      templateId: 'grant',
-      templateTitle: templateLabel,
-    };
+    // Build a detailed prompt for the AI
+    const prompt = `Generate a comprehensive, professional ${templateLabel} for the following organisation:
 
-    const generatedMarkdown = generateDocument(mappedData);
+Organisation Name: ${form.orgName}
+Contact Person: ${form.contactName}
+Location: ${form.state}
+Project Title: ${form.projectTitle}
 
-    const { data: doc, error } = await saveDocument({
-      user_id: userId,
-      template_id: 'grant',
-      template_title: templateLabel,
-      business_name: form.orgName,
-      status: 'completed',
-      content: generatedMarkdown,
-      form_data: form,
-      is_paid: false,
-    });
+Problem Statement: ${form.problemDescription}
 
-    clearInterval(iv);
-    setGenProgress(100);
+Proposed Solution: ${form.solutionDescription}
 
-    if (error || !doc) {
-      alert('Error saving document: ' + (error?.message || 'Unknown error'));
+Project Objectives: ${form.objectives || 'To be determined based on the project scope'}
+
+Target Beneficiaries: ${form.beneficiaries || 'Local community members'}
+
+Total Budget Requested: ₦${form.totalBudget}
+Project Duration: ${form.timeline || '12 months'}
+
+Expected Outcomes: ${form.expectedOutcomes || 'Measurable community impact'}
+
+Sustainability Plan: ${form.sustainability || 'Revenue generation through services'}
+
+Please write a detailed grant proposal including: Cover Letter, Executive Summary, Problem Statement, Business Solution, Project Objectives, Target Beneficiaries, Implementation Plan, Project Timeline, Budget & Use of Funds, Expected Outcomes, Sustainability Plan, Monitoring & Evaluation, and Conclusion. Format using Markdown with proper headings.`;
+
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (!response.ok || !response.body) throw new Error('Generation failed');
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullContent = '';
+      let p = 20;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        fullContent += decoder.decode(value, { stream: true });
+        p = Math.min(p + 5, 95);
+        setGenProgress(p);
+      }
+
+      setGenProgress(100);
+
+      const { data: doc, error } = await saveDocument({
+        user_id: userId,
+        template_id: 'grant-' + selectedType,
+        template_title: templateLabel,
+        business_name: form.orgName,
+        status: 'completed',
+        content: fullContent,
+        form_data: form as any,
+        is_paid: false,
+      });
+
+      if (error || !doc) {
+        alert('Error saving document: ' + (error?.message || 'Unknown error'));
+        setStep('form');
+        return;
+      }
+
+      setTimeout(() => {
+        router.push(`/dashboard/document/${(doc as any).id}`);
+      }, 400);
+
+    } catch (err: any) {
+      alert('Generation error: ' + err.message);
       setStep('form');
-      return;
     }
-
-    // Give it a tiny delay so the 100% is visible
-    setTimeout(() => {
-      router.push(`/dashboard/document/${doc.id}`);
-    }, 500);
   };
 
   return (

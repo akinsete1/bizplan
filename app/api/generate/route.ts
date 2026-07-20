@@ -1,4 +1,4 @@
-import { generateText, streamText } from 'ai';
+import { streamText } from 'ai';
 import { google } from '@ai-sdk/google';
 import { NextResponse } from 'next/server';
 import type { FormData } from '@/lib/documentGenerator';
@@ -7,15 +7,21 @@ export const maxDuration = 60; // Allow up to 60 seconds for generation
 
 export async function POST(req: Request) {
   try {
-    const data: FormData = await req.json();
+    const body = await req.json();
 
-    const currentYear = new Date().getFullYear();
-    const formattedAmount = data.amountNeeded 
-      ? `₦${parseFloat(data.amountNeeded.replace(/,/g, '') || '0').toLocaleString('en-NG')}` 
-      : 'Not specified';
+    let finalPrompt: string;
 
-    // Construct a highly detailed prompt based on the user's data
-    const prompt = `
+    // If a direct prompt string is passed (from tools like Grant/Loan builder), use it as-is
+    if (body.prompt && typeof body.prompt === 'string') {
+      finalPrompt = body.prompt;
+    } else {
+      // Otherwise treat it as FormData from the multi-step template flow
+      const data: FormData = body;
+      const formattedAmount = data.amountNeeded
+        ? `₦${parseFloat(data.amountNeeded.replace(/,/g, '') || '0').toLocaleString('en-NG')}`
+        : 'Not specified';
+
+      finalPrompt = `
 You are an expert business consultant and technical writer creating a professional business plan for a Nigerian entrepreneur.
 Please generate a comprehensive, highly detailed, and compelling Business Plan based on the following information.
 Format the output in clean Markdown. Do NOT wrap the entire output in a markdown code block (no \`\`\`markdown ... \`\`\`).
@@ -88,16 +94,17 @@ Please structure the document EXACTLY with these markdown headings (use ## for m
 (A strong, persuasive closing statement)
 
 IMPORTANT INSTRUCTIONS:
-- Expand on the provided details. Don't just parrot back what was given. Use your business expertise to fill in logical gaps and make the plan sound highly credible and thoroughly researched.
+- Expand on the provided details. Use your business expertise to fill in logical gaps and make the plan highly credible.
 - Ensure the language is polished and professional British/Nigerian English (e.g., use "organisation" instead of "organization").
 - Return ONLY the raw markdown text.
-    `;
+      `;
+    }
 
     // Stream the response back using the Vercel AI SDK
     const result = await streamText({
       model: google('gemini-3.5-flash'),
-      system: 'You are an expert business consultant.',
-      prompt: prompt,
+      system: 'You are an expert business consultant and professional writer specialising in Nigerian business documents.',
+      prompt: finalPrompt,
       temperature: 0.7,
     });
 

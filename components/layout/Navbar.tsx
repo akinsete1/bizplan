@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X, ChevronDown, FileText, LayoutTemplate, TrendingUp, PenTool, Calculator, BookOpen } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Menu, X, ChevronDown, FileText, LayoutTemplate, TrendingUp, PenTool, Calculator, BookOpen, LayoutDashboard, LogOut } from 'lucide-react';
 import styles from './Navbar.module.css';
+import { supabase } from '@/lib/supabase';
 
 const NAV_LINKS = [
   {
@@ -32,15 +34,35 @@ const NAV_LINKS = [
 ];
 
 export default function Navbar() {
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
+    router.refresh();
+  };
 
   return (
     <>
@@ -91,8 +113,21 @@ export default function Navbar() {
 
           {/* CTA Buttons */}
           <div className={styles.navActions}>
-            <Link href="/login" className="btn btn-ghost btn-sm">Sign In</Link>
-            <Link href="/register" className="btn btn-primary btn-sm">Get Started Free</Link>
+            {user ? (
+              <>
+                <Link href="/dashboard" className="btn btn-ghost btn-sm">
+                  <LayoutDashboard size={15} /> Dashboard
+                </Link>
+                <button onClick={handleSignOut} className="btn btn-outline btn-sm">
+                  <LogOut size={15} /> Sign Out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="btn btn-ghost btn-sm">Sign In</Link>
+                <Link href="/register" className="btn btn-primary btn-sm">Get Started Free</Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -137,8 +172,21 @@ export default function Navbar() {
                 )
               )}
               <div className={styles.mobileCTAs}>
-                <Link href="/login" className="btn btn-outline" onClick={() => setMobileOpen(false)}>Sign In</Link>
-                <Link href="/register" className="btn btn-primary" onClick={() => setMobileOpen(false)}>Get Started Free</Link>
+                {user ? (
+                  <>
+                    <Link href="/dashboard" className="btn btn-primary" onClick={() => setMobileOpen(false)}>
+                      <LayoutDashboard size={15} /> Dashboard
+                    </Link>
+                    <button className="btn btn-outline" onClick={() => { handleSignOut(); setMobileOpen(false); }}>
+                      <LogOut size={15} /> Sign Out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/login" className="btn btn-outline" onClick={() => setMobileOpen(false)}>Sign In</Link>
+                    <Link href="/register" className="btn btn-primary" onClick={() => setMobileOpen(false)}>Get Started Free</Link>
+                  </>
+                )}
               </div>
             </div>
           </div>

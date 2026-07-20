@@ -6,7 +6,6 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
 import { supabase, saveDocument } from '@/lib/supabase';
-import { generateDocument, type FormData as DocFormData } from '@/lib/documentGenerator';
 import styles from '../grant-builder/grant-builder.module.css';
 import loanStyles from './loan-builder.module.css';
 
@@ -56,87 +55,84 @@ export default function LoanBuilderPage() {
     }
 
     setStep('generating');
-    let p = 0;
-    const iv = setInterval(() => {
-      p += 12;
-      setGenProgress(Math.min(p, 90));
-    }, 500);
+    setGenProgress(10);
 
     const templateLabel = LOAN_PURPOSES.find(t => t.id === selectedPurpose)?.label || 'Bank Loan Proposal';
 
-    // Map form to document generator format
-    const mappedData: DocFormData = {
-      fullName: form.ownerName,
-      email: form.email,
-      phone: form.phone,
-      location: '',
-      state: form.state,
-      ownerType: 'Business Owner',
-      businessName: form.businessName,
-      businessType: form.businessType || 'SME',
-      industry: form.industry || 'Commerce',
-      businessLocation: form.state,
-      yearEstablished: form.yearsInOperation ? String(new Date().getFullYear() - parseInt(form.yearsInOperation)) : '',
-      employees: '',
-      businessDescription: 'A growing business seeking funding for ' + form.loanPurpose,
-      problemSolved: '',
-      targetCustomers: '',
-      productsServices: '',
-      uniqueValue: '',
-      amountNeeded: form.loanAmount,
-      fundingPurpose: form.loanPurpose,
-      fundingType: 'Bank Loan',
-      fundingBreakdown: [],
-      monthlyRevenue: form.monthlyRevenue,
-      monthlyExpenses: form.monthlyExpenses,
-      costOfGoods: '',
-      staffSalaries: '',
-      rent: '',
-      marketingBudget: '',
-      otherExpenses: '',
-      goals12Months: 'Repay loan over ' + form.repaymentPeriod,
-      goals3Years: '',
-      jobsCreated: '',
-      fundingImpact: 'Successfully execute ' + templateLabel,
-      templateId: 'loan',
-      templateTitle: templateLabel,
-    };
+    const prompt = `Generate a comprehensive, professional Bank Loan Proposal for the following business:
 
-    const generatedMarkdown = generateDocument(mappedData);
+Business Name: ${form.businessName}
+Business Owner: ${form.ownerName}
+Industry: ${form.industry}
+Years in Operation: ${form.yearsInOperation}
+State: ${form.state}
+Target Bank: ${form.bankName}
 
-    // Append extra sections specific to loan like Collateral and Existing Loans
-    const finalContent = generatedMarkdown + `
-## SECTION 18: ADDITIONAL LOAN DETAILS
-**Repayment Period:** ${form.repaymentPeriod}
-**Collateral Offered:** ${form.collateral}
-**Estimated Collateral Value:** ₦${form.collateralValue || '0'}
-**Existing Financial Obligations:** ${form.existingLoans}
-**Target Bank:** ${form.bankName}
-`;
+Loan Details:
+- Loan Amount Requested: ₦${form.loanAmount}
+- Purpose of Loan: ${form.loanPurpose} — ${templateLabel}
+- Repayment Period: ${form.repaymentPeriod}
 
-    const { data: doc, error } = await saveDocument({
-      user_id: userId,
-      template_id: 'loan',
-      template_title: templateLabel,
-      business_name: form.businessName,
-      status: 'completed',
-      content: finalContent,
-      form_data: form,
-      is_paid: false,
-    });
+Financial Overview:
+- Monthly Revenue: ₦${form.monthlyRevenue}
+- Monthly Expenses: ₦${form.monthlyExpenses}
+- Existing Loans/Obligations: ${form.existingLoans || 'None'}
 
-    clearInterval(iv);
-    setGenProgress(100);
+Collateral:
+- Type: ${form.collateral}
+- Estimated Value: ₦${form.collateralValue || '0'}
 
-    if (error || !doc) {
-      alert('Error saving document: ' + (error?.message || 'Unknown error'));
+Please write a detailed bank loan proposal including: Business Profile, Loan Request & Purpose, Business Revenue Overview, Repayment Plan with schedule, Cash Flow Forecast, Existing Assets & Collateral, Financial Projections (3-year), Risk Management, Business Owner Profile, and Conclusion. Format using Markdown with proper headings and tables where appropriate.`;
+
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (!response.ok || !response.body) throw new Error('Generation failed');
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullContent = '';
+      let p = 20;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        fullContent += decoder.decode(value, { stream: true });
+        p = Math.min(p + 4, 95);
+        setGenProgress(p);
+      }
+
+      setGenProgress(100);
+
+      const { data: doc, error } = await saveDocument({
+        user_id: userId,
+        template_id: 'loan-' + selectedPurpose,
+        template_title: templateLabel,
+        business_name: form.businessName,
+        status: 'completed',
+        content: fullContent,
+        form_data: form as any,
+        is_paid: false,
+      });
+
+      if (error || !doc) {
+        alert('Error saving document: ' + (error?.message || 'Unknown error'));
+        setStep('form');
+        return;
+      }
+
+      setTimeout(() => {
+        router.push(`/dashboard/document/${(doc as any).id}`);
+      }, 400);
+
+    } catch (err: any) {
+      alert('Generation error: ' + err.message);
       setStep('form');
-      return;
     }
-
-    setTimeout(() => {
-      router.push(`/dashboard/document/${doc.id}`);
-    }, 500);
   };
 
   return (
