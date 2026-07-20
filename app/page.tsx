@@ -6,6 +6,7 @@ import ProblemSection from '@/components/home/ProblemSection';
 import HowItWorks from '@/components/home/HowItWorks';
 import TemplatePreview from '@/components/home/TemplatePreview';
 import PricingSection from '@/components/home/PricingSection';
+import TestimonialsSection from '@/components/home/TestimonialsSection';
 import TrustSection from '@/components/home/TrustSection';
 import CTASection from '@/components/home/CTASection';
 import LeadCapturePopup from '@/components/home/LeadCapturePopup';
@@ -26,6 +27,7 @@ export default function HomePage() {
         <HowItWorks />
         <TemplatePreview />
         <PricingSection />
+        <TestimonialsSection />
         <CTASection />
       </main>
       <Footer />

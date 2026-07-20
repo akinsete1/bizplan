@@ -105,3 +105,16 @@
   color: var(--color-primary);
   text-align: right;
 }
+
+.searchBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 10px;
+  color: var(--color-text-light);
+  pointer-events: none;
+}

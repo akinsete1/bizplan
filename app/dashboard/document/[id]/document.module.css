@@ -9,7 +9,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
   margin-bottom: var(--space-xl);
+}
+
+.docMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
 }
 
 .actions {

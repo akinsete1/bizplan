@@ -132,3 +132,67 @@
   border-top: 1px solid var(--color-border-light);
   padding: var(--space-sm) 0;
 }
+
+.dashboardPage {
+  min-height: calc(100vh - 72px);
+  padding: var(--space-2xl) 0 var(--space-4xl);
+  background: var(--color-bg);
+}
+
+.dashboardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-2xl);
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.dashboardTitle {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  color: var(--color-text);
+  margin-bottom: var(--space-xs);
+}
+
+.dashboardSubtitle {
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+.headerActions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--space-4xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.emptyState h3 {
+  font-size: 1.25rem;
+  color: var(--color-text);
+  margin-bottom: var(--space-xs);
+}
+
+.emptyState p {
+  color: var(--color-text-muted);
+}
+
+/* Search */
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 10px;
+  color: var(--color-text-light);
+  pointer-events: none;
+}
