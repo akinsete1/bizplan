@@ -27,6 +27,16 @@ export default function CheckoutModal({
 }: CheckoutModalProps) {
   const [showManual, setShowManual] = useState(false);
 
+  // Determine the Paystack Plan ID based on the plan name
+  let paystackPlanId = undefined;
+  if (type === 'subscription') {
+    if (planName === 'Pro') {
+      paystackPlanId = process.env.NEXT_PUBLIC_PAYSTACK_PRO_PLAN_ID;
+    } else if (planName === 'Business') {
+      paystackPlanId = process.env.NEXT_PUBLIC_PAYSTACK_BUSINESS_PLAN_ID;
+    }
+  }
+
   if (!isOpen) return null;
 
   return (
@@ -73,6 +83,7 @@ export default function CheckoutModal({
               <>
                 <PaystackButton
                   amount={price}
+                  plan={paystackPlanId}
                   metadata={{ plan: planName.toLowerCase(), type, document_id: documentId }}
                   onSuccess={(ref) => {
                     onSuccess(ref);

@@ -21,6 +21,7 @@
     "@supabase/auth-helpers-react": "^0.15.0",
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.110.7",
+    "@vercel/analytics": "^2.0.1",
     "ai": "^7.0.31",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",

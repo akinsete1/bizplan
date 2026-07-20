@@ -7,6 +7,7 @@ import { PAYSTACK_PUBLIC_KEY, generateReference } from '@/lib/paystack';
 interface PaystackButtonProps {
   amount: number; // in NGN (not kobo)
   email?: string;
+  plan?: string; // Paystack Plan ID for subscriptions
   metadata?: Record<string, any>;
   onSuccess?: (reference: string) => void;
   onClose?: () => void;
@@ -18,6 +19,7 @@ interface PaystackButtonProps {
 export default function PaystackButton({
   amount,
   email,
+  plan,
   metadata = {},
   onSuccess,
   onClose,
@@ -60,6 +62,7 @@ export default function PaystackButton({
       email: userEmail,
       amount: amount * 100, // Convert to kobo
       ref: generateReference(),
+      plan: plan,
       metadata: {
         ...metadata,
         user_id: user?.id,
