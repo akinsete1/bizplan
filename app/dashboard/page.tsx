@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FileText, Plus, LogOut, Loader2, Download, Eye, Search, Trash2 } from 'lucide-react';
+import { FileText, Plus, LogOut, Loader2, Download, Eye, Search, Trash2, Settings } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { getUserDocuments, getUserSubscription, signOut, deleteDocument } from '@/lib/supabase';
 import { Document } from '@/lib/database.types';
@@ -123,6 +123,9 @@ export default function DashboardPage() {
               <p className={styles.dashboardSubtitle}>Manage your business documents and proposals.</p>
             </div>
             <div className={styles.headerActions}>
+              <Link href="/dashboard/settings" className="btn btn-outline" style={{ background: 'white' }}>
+                <Settings size={16} /> Settings
+              </Link>
               <Link href="/templates" className="btn btn-primary">
                 <Plus size={16} /> New Document
               </Link>
